@@ -269,7 +269,6 @@ function Calendar() {
   );
 };
 
-
   const EventModal = () => {
     if (!showEventModal || !selectedDate) return null;
 
