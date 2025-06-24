@@ -27,40 +27,42 @@ const CalendarGrid = ({
         backgroundSize: 'contain',
       }}
     >
-             <img
-    src={sparrow}
-    alt=""
-    className="absolute right-0 top-1/2 -translate-y-1/2 w-48 h-48 pointer-events-none opacity-100"
-    style={{ zIndex: 1 }}
-  />
-             <img
-    src={sparrow}
-    alt=""
-    className="absolute left-0 top-1/4 -translate-y-1/2 w-48 h-48 pointer-events-none opacity-100"
-    style={{ zIndex: 1 }}
-  />
-             <img
-    src={sparrow}
-    alt=""
-    className="absolute left-0 bottom-2 -translate-y-1/2 w-48 h-48 pointer-events-none opacity-100"
-    style={{ zIndex: 1 }}
-  />
-             <img
-    src={sparrow}
-    alt=""
-    className="absolute right-0 bottom-2/3 -translate-y-1/2 w-48 h-48 pointer-events-none opacity-100"
-    style={{ zIndex: 1 }}
-  />
-             <img
-    src={sparrow}
-    alt=""
-    className="absolute right-0 bottom-3  w-48 h-48 pointer-events-none opacity-100"
-    style={{ zIndex: 1 }}
-  />
+      {/* Decorative Sparrow Images */}
+      <img
+        src={sparrow}
+        alt=""
+        className="absolute right-0 top-1/2 -translate-y-1/2 w-48 h-48 pointer-events-none opacity-100"
+        style={{ zIndex: 1 }}
+      />
+      <img
+        src={sparrow}
+        alt=""
+        className="absolute left-0 top-1/4 -translate-y-1/2 w-48 h-48 pointer-events-none opacity-100"
+        style={{ zIndex: 1 }}
+      />
+      <img
+        src={sparrow}
+        alt=""
+        className="absolute left-0 bottom-2 -translate-y-1/2 w-48 h-48 pointer-events-none opacity-100"
+        style={{ zIndex: 1 }}
+      />
+      <img
+        src={sparrow}
+        alt=""
+        className="absolute right-0 bottom-2/3 -translate-y-1/2 w-48 h-48 pointer-events-none opacity-100"
+        style={{ zIndex: 1 }}
+      />
+      <img
+        src={sparrow}
+        alt=""
+        className="absolute right-0 bottom-3 w-48 h-48 pointer-events-none opacity-100"
+        style={{ zIndex: 1 }}
+      />
 
+      {/* Overlay for blur effect */}
       <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-0"></div>
 
-     
+      {/* Days of Week Header */}
       <div className="relative z-10 grid grid-cols-7 bg-green-50 border-b">
         {DAYS.map(day => (
           <div
@@ -72,9 +74,9 @@ const CalendarGrid = ({
         ))}
       </div>
 
-  
+      {/* Calendar Days */}
       <div className="relative z-10 grid grid-cols-7">
-      
+        {/* Previous Month Days */}
         {prevMonthDays.map(day => (
           <div
             key={`prev-${day}`}
@@ -84,6 +86,7 @@ const CalendarGrid = ({
           </div>
         ))}
 
+        {/* Current Month Days */}
         {currentMonthDays.map(day => {
           const dateStr = formatDate(year, month, day);
           const dayEvents = getEventsForDate(dateStr);
@@ -140,7 +143,7 @@ const CalendarGrid = ({
           );
         })}
 
-  
+        {/* Next Month Days */}
         {nextMonthDays.map(day => (
           <div
             key={`next-${day}`}
@@ -151,7 +154,7 @@ const CalendarGrid = ({
         ))}
       </div>
     </div>
-  );
+      );
 };
 
 export default CalendarGrid;

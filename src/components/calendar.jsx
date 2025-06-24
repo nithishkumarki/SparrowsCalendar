@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { Plus, Clock, X } from 'lucide-react';
-import Navbar from '../components/navbar';
-import CalendarGrid from '../components/calendargrid';
+import React, { useState, useCallback } from 'react';
+import { Plus, Clock, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
-const SAMPLE_EVENTS =  [
+const SAMPLE_EVENTS = [
   {
     id: 1,
     title: "Scrum Meeting",
@@ -59,6 +57,8 @@ const MONTHS = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
 const EVENT_COLORS = [
   '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', 
   '#06b6d4', '#ec4899', '#84cc16', '#f97316', '#6366f1'
@@ -71,6 +71,151 @@ const SparrowLogo = ({ className = "w-8 h-8" }) => (
     <path d="M65 20l2 9c1 2 2 4 2 6 0 4-2 8-5 10v8c6-4 10-11 10-19 0-1 0-2 0-3l6-4c1 0 2-1 2-2s-2-3-3-2l-8 5c-1-3-3-6-6-8z"/>
   </svg>
 );
+
+// Navbar Component
+const Navbar = ({ month, year, MONTHS, onPrev, onNext, SparrowLogo }) => (
+  <div className="mb-6 bg-white/90 backdrop-blur-sm rounded-lg shadow-lg p-4">
+    <div className="flex items-center justify-between">
+      <div className="flex items-center space-x-3">
+        <SparrowLogo className="w-10 h-10 text-green-600" />
+        <div>
+          <h1 className="text-2xl font-bold text-green-900">Sparrow Calendar</h1>
+          <p className="text-green-700">Stay organized, stay productive</p>
+        </div>
+      </div>
+      <div className="flex items-center space-x-4">
+        <button
+          onClick={onPrev}
+          className="p-2 text-green-600 hover:bg-green-100 rounded-full transition-colors"
+        >
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <h2 className="text-xl font-semibold text-green-900 min-w-[200px] text-center">
+          {MONTHS[month]} {year}
+        </h2>
+        <button
+          onClick={onNext}
+          className="p-2 text-green-600 hover:bg-green-100 rounded-full transition-colors"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+      </div>
+    </div>
+  </div>
+);
+
+// Calendar Grid Component
+const CalendarGrid = ({
+  prevMonthDays,
+  currentMonthDays,
+  nextMonthDays,
+  formatDate,
+  getEventsForDate,
+  handleDateClick,
+  isToday,
+  year,
+  month
+}) => {
+  const EventDot = ({ color }) => (
+    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
+  );
+
+  return (
+    <div className="relative rounded-lg shadow-lg overflow-hidden border border-white/20 min-h-[600px] bg-white/90 backdrop-blur-sm">
+      {/* Days of Week Header */}
+      <div className="grid grid-cols-7 bg-green-50 border-b">
+        {DAYS.map(day => (
+          <div
+            key={day}
+            className="p-4 text-center font-semibold text-green-800 border-r last:border-r-0"
+          >
+            {day}
+          </div>
+        ))}
+      </div>
+
+      {/* Calendar Days */}
+      <div className="grid grid-cols-7">
+        {/* Previous Month Days */}
+        {prevMonthDays.map(day => (
+          <div
+            key={`prev-${day}`}
+            className="h-32 border-r last:border-r-0 border-b bg-gray-50/50 hover:bg-gray-100/70 transition-colors"
+          >
+            <div className="p-2 text-gray-400 text-sm">{day}</div>
+          </div>
+        ))}
+
+        {/* Current Month Days */}
+        {currentMonthDays.map(day => {
+          const dateStr = formatDate(year, month, day);
+          const dayEvents = getEventsForDate(dateStr);
+          const isTodayDate = isToday(day);
+
+          return (
+            <div
+              key={day}
+              className="h-32 border-r last:border-r-0 border-b bg-white/80 hover:bg-green-100/60 cursor-pointer transition-colors duration-200"
+              onClick={() => handleDateClick(day, true)}
+            >
+              <div className="p-2 h-full flex flex-col">
+                <div
+                  className={`text-sm font-medium mb-1 ${
+                    isTodayDate
+                      ? 'bg-green-600 text-white w-6 h-6 rounded-full flex items-center justify-center'
+                      : 'text-gray-900'
+                  }`}
+                >
+                  {day}
+                </div>
+
+                <div className="flex-1 space-y-1 overflow-hidden">
+                  {dayEvents.slice(0, 3).map(event => (
+                    <div
+                      key={event.id}
+                      className="text-xs p-1 rounded truncate text-white font-medium"
+                      style={{ backgroundColor: event.color }}
+                    >
+                      {event.title}
+                    </div>
+                  ))}
+                  {dayEvents.length > 3 && (
+                    <div className="text-xs text-gray-500 font-medium">
+                      +{dayEvents.length - 3} more
+                    </div>
+                  )}
+                </div>
+
+                {dayEvents.length > 0 && (
+                  <div className="flex space-x-1 mt-1 md:hidden">
+                    {dayEvents.slice(0, 3).map(event => (
+                      <EventDot key={event.id} color={event.color} />
+                    ))}
+                    {dayEvents.length > 3 && (
+                      <div className="text-xs text-gray-500">
+                        +{dayEvents.length - 3}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Next Month Days */}
+        {nextMonthDays.map(day => (
+          <div
+            key={`next-${day}`}
+            className="h-32 border-r last:border-r-0 border-b bg-gray-50/50 hover:bg-gray-100/70 transition-colors"
+          >
+            <div className="p-2 text-gray-400 text-sm">{day}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -135,6 +280,26 @@ function Calendar() {
 
   const handleAddEvent = () => setShowAddEventForm(true);
 
+  // Fixed input handlers with useCallback to prevent re-renders
+  const handleTitleChange = useCallback((e) => {
+    const value = e.target.value;
+    setNewEvent(prev => ({ ...prev, title: value }));
+  }, []);
+
+  const handleStartTimeChange = useCallback((e) => {
+    const value = e.target.value;
+    setNewEvent(prev => ({ ...prev, startTime: value }));
+  }, []);
+
+  const handleEndTimeChange = useCallback((e) => {
+    const value = e.target.value;
+    setNewEvent(prev => ({ ...prev, endTime: value }));
+  }, []);
+
+  const handleColorChange = useCallback((color) => {
+    setNewEvent(prev => ({ ...prev, color }));
+  }, []);
+
   const handleSaveEvent = () => {
     if (!newEvent.title.trim() || !newEvent.startTime || !newEvent.endTime) {
       alert('Please fill in all required fields');
@@ -188,9 +353,10 @@ function Calendar() {
           <input
             type="text"
             value={newEvent.title}
-            onChange={(e) => setNewEvent(prev => ({ ...prev, title: e.target.value }))}
-            className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+            onChange={handleTitleChange}
+            className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             placeholder="Enter event title"
+            autoFocus
           />
         </div>
 
@@ -200,8 +366,8 @@ function Calendar() {
             <input
               type="time"
               value={newEvent.startTime}
-              onChange={(e) => setNewEvent(prev => ({ ...prev, startTime: e.target.value }))}
-              className="w-full px-3 py-2 border border-green-300 rounded-md"
+              onChange={handleStartTimeChange}
+              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
           </div>
           <div>
@@ -209,8 +375,8 @@ function Calendar() {
             <input
               type="time"
               value={newEvent.endTime}
-              onChange={(e) => setNewEvent(prev => ({ ...prev, endTime: e.target.value }))}
-              className="w-full px-3 py-2 border border-green-300 rounded-md"
+              onChange={handleEndTimeChange}
+              className="w-full px-3 py-2 border border-green-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
             />
           </div>
         </div>
@@ -222,9 +388,9 @@ function Calendar() {
               <button
                 key={color}
                 type="button"
-                onClick={() => setNewEvent(prev => ({ ...prev, color }))}
-                className={`w-6 h-6 rounded-full border-2 ${
-                  newEvent.color === color ? 'border-green-800' : 'border-green-300'
+                onClick={() => handleColorChange(color)}
+                className={`w-6 h-6 rounded-full border-2 transition-all hover:scale-110 ${
+                  newEvent.color === color ? 'border-green-800 ring-2 ring-green-200' : 'border-green-300'
                 }`}
                 style={{ backgroundColor: color }}
               />
@@ -235,13 +401,13 @@ function Calendar() {
         <div className="flex space-x-3 pt-2">
           <button
             onClick={handleSaveEvent}
-            className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700"
+            className="flex-1 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors"
           >
             Save Event
           </button>
           <button
             onClick={handleCancelAddEvent}
-            className="flex-1 bg-green-200 text-green-800 py-2 px-4 rounded-md hover:bg-green-300"
+            className="flex-1 bg-green-200 text-green-800 py-2 px-4 rounded-md hover:bg-green-300 transition-colors"
           >
             Cancel
           </button>
@@ -264,7 +430,10 @@ function Calendar() {
           <div className="sticky top-0 bg-white p-4 border-b">
             <div className="flex justify-between items-center">
               <h3 className="text-lg font-semibold text-gray-900">{formattedDate}</h3>
-              <button onClick={() => setShowEventModal(false)} className="text-gray-500 hover:text-gray-700 p-1">
+              <button 
+                onClick={() => setShowEventModal(false)} 
+                className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -273,7 +442,7 @@ function Calendar() {
             {!showAddEventForm && (
               <button
                 onClick={handleAddEvent}
-                className="w-full mb-4 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 flex items-center justify-center space-x-2"
+                className="w-full mb-4 bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 transition-colors flex items-center justify-center space-x-2"
               >
                 <Plus className="w-4 h-4" />
                 <span>Add Event</span>
@@ -293,7 +462,10 @@ function Calendar() {
                           {event.startTime} - {event.endTime}
                         </div>
                       </div>
-                      <button onClick={() => handleDeleteEvent(event.id)} className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-1">
+                      <button 
+                        onClick={() => handleDeleteEvent(event.id)} 
+                        className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition-all"
+                      >
                         <X className="w-4 h-4" />
                       </button>
                     </div>
