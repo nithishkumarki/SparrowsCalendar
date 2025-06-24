@@ -27,7 +27,7 @@ const CalendarGrid = ({
         backgroundSize: 'contain',
       }}
     >
-      {/* Decorative Sparrow Images */}
+   
       <img
         src={sparrow}
         alt=""
@@ -59,10 +59,9 @@ const CalendarGrid = ({
         style={{ zIndex: 1 }}
       />
 
-      {/* Overlay for blur effect */}
+    
       <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-0"></div>
 
-      {/* Days of Week Header */}
       <div className="relative z-10 grid grid-cols-7 bg-green-50 border-b">
         {DAYS.map(day => (
           <div
@@ -74,9 +73,9 @@ const CalendarGrid = ({
         ))}
       </div>
 
-      {/* Calendar Days */}
+
       <div className="relative z-10 grid grid-cols-7">
-        {/* Previous Month Days */}
+   
         {prevMonthDays.map(day => (
           <div
             key={`prev-${day}`}
@@ -86,7 +85,7 @@ const CalendarGrid = ({
           </div>
         ))}
 
-        {/* Current Month Days */}
+     
         {currentMonthDays.map(day => {
           const dateStr = formatDate(year, month, day);
           const dayEvents = getEventsForDate(dateStr);
@@ -143,7 +142,7 @@ const CalendarGrid = ({
           );
         })}
 
-        {/* Next Month Days */}
+   
         {nextMonthDays.map(day => (
           <div
             key={`next-${day}`}
